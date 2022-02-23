@@ -7,12 +7,6 @@
 # Get the disto name in lowercase from the "ID=" field in /etc/os-release - 09/10/2021
 distro_name=`grep ^ID\= /etc/os-release | awk -F '=' '{print $2}'`
 
-#if [ $EUID -eq 0 ]; then
-#	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]${distro_name} \u@\h\[\033[00m\]\[\033[01;34m\] [\w]\[\033[00m\]\$ '
-#else	
-#	PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\](debian) \u@\h\[\033[00m\]\[\033[01;34m\] [\w]\[\033[00m\]\$ '
-#fi
-
 if [ $EUID -eq 0 ]; then
 	PS1='\[\033[01;31m\](${distro_name}\033[01;31m)\033[01;31m \u@\h\[\033[00m\]\[\033[01;34m\] [\w]\[\033[00m\]\$ '
 else	
