@@ -2,5 +2,5 @@
 
 The posts folder contains all files linked on the blog, organized by post topic.
 
-* [Batch Downloading with Python](https://thesoloadmin.com/batch-downloading-with-python) - [batch-downloading-with-python](./batch-downloading-with-python)
+* [Batch Downloading with Python](https://thesoloadmin.com/batch-downloading-with-python) 
 
