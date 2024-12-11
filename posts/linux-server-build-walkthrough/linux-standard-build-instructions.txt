@@ -1,0 +1,80 @@
+DEBIAN NETINST INSTALLATION - BUILD INSTRUCTIONS AND FIRST CONFIGURATION STEPS
+LAST UPDATED: DECEMBER 11, 2024
+
+IF SERVER IS VIRTUALIZED VIA PROXMOX HOST:
+1. For all hardware, choose the "VirtIO" hardware if available.
+2. For CPU, choose 1 socket, 2 cores.
+3. For memory, set a fixed amount (not balloon).
+4. Set CD/ROM to Debian NETINST ISO image.
+5. Set "Start on boot" option as appropriate. Default "Start on boot" value is False.
+6. Under "Options", edit the "QEMU Agent" option and check both the "QEMU Agent" and "Run guest-trim after clone disk" checkboxes. Ensure that package "qemu-guest-agent" (Debian) is installed on build.
+
+SERVER BUILD:
+
+1. Install latest Debian stable (12.8 as of December 11, 2024) from the NETINST source ISO image. 
+2. Configure partitions as follows:
+	a. /boot - Primary partition, beginning of disk, 512 MB, ext4, 0% reserved, label "boot"
+	b. swap - Primary partition, beginning of disk, 1024 MB
+	c. Configure LVM for all remaining space:
+		a. Volume Group: vg0
+		b. Logical Volume: lv0
+	c. / - all available space on lv0, ext4, 1% reserved, label "root"
+
+SERVER CONFIGURATION:
+
+1. Update /etc/network/interfaces as appropriate.
+
+2. Update /etc/default/grub to increase screen resolution:
+	a. Modify line: GRUB_GFXMODE=1280x1024
+	b. Add line: GRUB_GFXPAYLOAD_LINUX=1280x1024
+	c. Save file and run update-grub
+
+3. Reboot for the previous changes.
+
+4. Install the standard SSHD configuration file from git repository. The standard configuration allows root login via public key auth and sets the listening port to tcp/2222:
+	a. scp sshd_config servername.wwf-mgt.com:/etc/ssh/
+	b. systemctl restart ssh
+
+5. Copy standard authorized_keys to /root/.ssh from git repository:
+	a. scp .ssh/authorized_keys servername.wwf-mgt.com:.ssh/
+
+6. Copy SSH server identity private and public key files to /root/.ssh from git repository:
+	a. scp .ssh/server-identity* servername.wwf-mgt.com:.ssh/
+
+7. Set permissions on the .ssh folder and files in root's home directory:
+	a. chmod 600 .ssh/*
+	b. chmod 700 .ssh/
+
+8. Copy config files as applicable from the git repository path: server-build/linux/. This folder contains the standard service configuration files, including sshd_config and SSH keys/configuration.
+
+9. Run apt update and install basic packages:
+	a. apt update
+	b. apt install vim wget curl net-tools iproute2 man tcpdump dnsutils grc rsync telnet ncat zip unzip mlocate sudo letsencrypt lynx pandoc htop lsof strace git nmap linuxlogo hwinfo screen tmux fio gnupg
+
+10. Copy standard .bashrc to root's home directory from git repository:
+	a. mv .bashrc bashrc-ORIG
+	b. scp .bashrc servername.wwf-mgt.com:
+	c. chown root:root .bashrc && chmod +x .bashrc
+	d. <Repeat steps a - c for any other local accounts that will be logging on interactively>
+	
+11. Copy all remaining configuration files from git repository to the corresponding location on the server. 
+
+12. Configure vim as the default editor:
+	a. update-alternatives --config editor # choose "vim.basic" from the list
+
+13. Disable IPv6
+	a. echo 'net.ipv6.conf.all.disable_ipv6 = 1' > /etc/sysctl.d/90-disable_ipv6.conf
+	b. sysctl -p -f /etc/sysctl.d/90-disable-ipv6.conf
+
+14. OPTIONAL: Install nullmailer package using the nullmailer install document in the server-build/linux/build-logs/application-installs folder.
+
+15. OPTIONAL: Disable Let's Encrypt auto-renew services (only if letsencrypt package is installed and configured):
+	a. systemctl disable certbot.timer
+	b. systemctl disable certbot
+	
+16. OPTIONAL: Install btop system monitoring package:
+	a. apt install build-essential coreutils sed
+	b. git clone https://github.com/aristocratos/btop.git
+	c. cd btop; make && make install
+	
+17. Configure Active Directory authentication
