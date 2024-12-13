@@ -1,0 +1,9 @@
+Name: Guestline AD user home management
+Default: yes
+Priority: 127
+
+Session-Type: Additional
+Session-Interactive-Only: yes
+Session:
+                required pam_mkhomedir.so skel=/etc/skel/ umask=022
+

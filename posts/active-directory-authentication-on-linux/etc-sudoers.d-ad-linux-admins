@@ -1,0 +1,2 @@
+# /etc/sudoers.d/ad-linux-admins
+%Linux\ Admins ALL = (ALL) ALL
